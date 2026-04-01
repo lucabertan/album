@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Immagini di Creazioni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2ed;
+    --bg2: #edeae4;
+    --text: #1a1816;
+    --muted: #7a7570;
+    --accent: #3d3530;
+    --border: rgba(60,50,40,0.12);
+    --overlay-bg: rgba(20,16,12,0.92);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 3.5rem 2.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .header-left h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+  .header-left h1 em {
+    font-style: italic;
+    color: var(--muted);
+  }
+  .header-meta {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+  #photo-count {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    align-self: flex-end;
+    padding-bottom: 4px;
+  }
+
+  main {
+    padding: 2.5rem 2rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Masonry con CSS columns */
+  .masonry {
+    columns: 4 220px;
+    column-gap: 16px;
+  }
+  .photo-item {
+    break-inside: avoid;
+    margin-bottom: 16px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--bg2);
+    animation: fadeUp 0.5s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .photo-item img {
+    width: 100%;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+  .photo-item:hover img { transform: scale(1.03); }
+  .photo-caption {
+    padding: 10px 12px 12px;
+    background: var(--bg2);
+  }
+  .photo-caption .cap-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .photo-caption .cap-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--muted);
+    display: none;
+  }
+  .empty-state p { font-size: 14px; letter-spacing: 0.06em; }
+
+  /* Lightbox */
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--overlay-bg);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  #lightbox.open { display: flex; }
+
+  .lb-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 95vw;
+    max-height: 95vh;
+    padding: 1rem;
+  }
+  .lb-nav {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.2s;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .lb-nav:hover { color: rgba(255,255,255,0.9); }
+
+  .lb-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-height: 90vh;
+  }
+  #lb-img {
+    max-width: 80vw;
+    max-height: 78vh;
+    object-fit: contain;
+    border-radius: 2px;
+    display: block;
+  }
+  .lb-info {
+    text-align: center;
+    max-width: 600px;
+    padding: 0 1rem;
+  }
+  .lb-info h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.9);
+    font-style: italic;
+  }
+  .lb-info p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    line-height: 1.6;
+  }
+  .lb-counter {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  #lb-close {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+    z-index: 10;
+  }
+  #lb-close:hover { color: rgba(255,255,255,0.9); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 2rem 1.2rem 1.5rem; }
+    main { padding: 1.5rem 1rem 3rem; }
+    .masonry { columns: 2 140px; column-gap: 10px; }
+    .photo-item { margin-bottom: 10px; }
+    #lb-img { max-width: 95vw; max-height: 65vh; }
+    .lb-nav { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Immagini di <em>Creazioni</em></h1>
+    <div class="header-meta">Galleria personale &mdash; Luca Bertan</div>
+  </div>
+  <div id="photo-count"></div>
+</header>
+
+<main>
+  <div class="masonry" id="gallery"></div>
+  <div class="empty-state" id="empty">
+    <p>Nessuna immagine presente.</p>
+  </div>
+</main>
+
+<div id="lightbox">
+  <button id="lb-close" onclick="closeLb()" title="Chiudi">&#x2715;</button>
+  <div class="lb-inner">
+    <button class="lb-nav" onclick="navLb(-1)">&#x2039;</button>
+    <div class="lb-content">
+      <img id="lb-img" src="" alt="">
+      <div class="lb-info">
+        <h2 id="lb-title"></h2>
+        <p id="lb-desc"></p>
+        <div class="lb-counter" id="lb-counter"></div>
+      </div>
+    </div>
+    <button class="lb-nav" onclick="navLb(1)">&#x203a;</button>
+  </div>
+</div>
+
+<footer>lucabertan &mdash; immagini di creazioni</footer>
+
+<script>
+// ============================================================
+// FOTO — aggiungi qui le tue immagini
+// Ogni voce: { src, title, desc }
+// src = percorso relativo del file immagine (es. "foto/mia-foto.jpg")
+// title = titolo mostrato nella card e nel lightbox
+// desc = descrizione (opzionale, lascia "" se non serve)
+// ============================================================
+const PHOTOS = [
+  {
+    src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600",
+    title: "Esempio — Ceramica",
+    desc: "Foto di esempio. Sostituiscila con la tua."
+  },
+  {
+    src: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600",
+    title: "Esempio — Scultura",
+    desc: ""
+  },
+  {
+    src: "https://images.unsplash.com/photo-1515405295579-ba7b45403062?w=800",
+    title: "Esempio — Dettaglio",
+    desc: "Un primo piano ravvicinato."
+  },
+  {
+    src: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=500",
+    title: "Esempio — Colori",
+    desc: ""
+  },
+  {
+    src: "https://images.unsplash.com/photo-1543286386-713bdd548da4?w=700",
+    title: "Esempio — Texture",
+    desc: "La superficie lavorata a mano."
+  },
+];
+// ============================================================
+
+let lbIdx = 0;
+
+function render() {
+  const g = document.getElementById('gallery');
+  const em = document.getElementById('empty');
+  const cnt = document.getElementById('photo-count');
+  g.innerHTML = '';
+  if (!PHOTOS.length) { em.style.display = 'block'; cnt.textContent = ''; return; }
+  em.style.display = 'none';
+  cnt.textContent = PHOTOS.length + (PHOTOS.length === 1 ? ' immagine' : ' immagini');
+  PHOTOS.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    item.style.animationDelay = (i * 60) + 'ms';
+    item.innerHTML = `<img src="${p.src}" alt="${p.title}" loading="lazy">
+      <div class="photo-caption">
+        <div class="cap-title">${p.title}</div>
+        ${p.desc ? `<div class="cap-desc">${p.desc}</div>` : ''}
+      </div>`;
+    item.addEventListener('click', () => openLb(i));
+    g.appendChild(item);
+  });
+}
+
+function openLb(i) {
+  lbIdx = i;
+  updateLb();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLb() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function navLb(dir) {
+  lbIdx = (lbIdx + dir + PHOTOS.length) % PHOTOS.length;
+  updateLb();
+}
+function updateLb() {
+  const p = PHOTOS[lbIdx];
+  document.getElementById('lb-img').src = p.src;
+  document.getElementById('lb-title').textContent = p.title;
+  document.getElementById('lb-desc').textContent = p.desc || '';
+  document.getElementById('lb-counter').textContent = (lbIdx + 1) + ' / ' + PHOTOS.length;
+}
+
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLb();
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') navLb(-1);
+  if (e.key === 'ArrowRight') navLb(1);
+  if (e.key === 'Escape') closeLb();
+});
+
+render();
+</script>
+</body>
+</html>
